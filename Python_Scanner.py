@@ -8,7 +8,7 @@ Python Scanner -> PostgreSQL (ops.file_registry)
    <root_dir> / (Сети|Дистрибьюторы) / YYYY / MM / Client / ReportType / file.ext
 3) Пишет новые файлы в ops.file_registry со статусом NEW.
 4) Не падает на "кривых" путях — такие файлы пропускает с предупреждением.
-5) Сам создаёт схему/таблицу/уникальный индекс при первом запуске.
+5) Сам создаёт схему/таблицу/индексы при первом запуске (в точности как в согласованном DDL).
 
 Зависимости: psycopg2
 Установка: python -m pip install psycopg2-binary
@@ -33,7 +33,7 @@ DB = dict(
 
 # === ФУНКЦИИ ===
 def ensure_schema(conn):
-    """Создаёт схему/таблицу/индексы, если их ещё нет."""
+    """Создаёт схему/таблицу/индексы, если их ещё нет (синхронно с вашим DDL)."""
     ddl = """
     CREATE SCHEMA IF NOT EXISTS ops;
 
@@ -41,18 +41,21 @@ def ensure_schema(conn):
         id             BIGSERIAL PRIMARY KEY,
         file_path      TEXT NOT NULL,
         uploaded_at    TIMESTAMP NOT NULL,
-        status         TEXT NOT NULL CHECK (status IN ('NEW','PROCESSING','PROCESSED','ERROR')),
+        status         TEXT NOT NULL CHECK (status IN ('NEW','PROCESSING','ERROR','CREATED','DELETE')),
         data_provider  TEXT NOT NULL CHECK (data_provider IN ('Сеть','Дистрибьютор')),
         report_year    SMALLINT NOT NULL CHECK (report_year >= 2000),
         report_month   SMALLINT NOT NULL CHECK (report_month BETWEEN 1 AND 12),
         client_name    TEXT NOT NULL,
         report_type    TEXT NOT NULL,
-        created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        error_reason   TEXT
     );
 
+    -- Антидубли по пути
     CREATE UNIQUE INDEX IF NOT EXISTS uq_file_registry_file_path
         ON ops.file_registry(file_path);
 
+    -- Индексы как в согласованном DDL
     CREATE INDEX IF NOT EXISTS idx_file_registry_status
         ON ops.file_registry(status);
     CREATE INDEX IF NOT EXISTS idx_file_registry_provider
