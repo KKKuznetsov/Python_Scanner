@@ -21,4 +21,18 @@
 
 - pip install psycopg2-binary
 
+## Быстрый старт
+
+1) Тестовый запуск (dry-run, без записи в БД)
+- cd .\scanner
+python .\Python_Scanner.py --root "C:/Users/user/Desktop/Поставщики данных" --dry-run
+
+2) Запись в БД
+python .\Python_Scanner.py `
+  --root "C:/Users/user/Desktop/Поставщики данных" `
+  --db-host localhost --db-port 5432 `
+  --db-name appdb --db-user app --db-pass secret
+
+Любой параметр можно не указывать, если он совпадает со значением по умолчанию:
+host=localhost, port=5432, dbname=appdb, user=app, pass=secret.
 
