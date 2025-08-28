@@ -26,12 +26,14 @@
 1) Тестовый запуск (dry-run, без записи в БД)
 - Через командную строку переходим в папку, где лежит сканер
 - запускаем команду, пример:
+
 python Python_Scanner.py --root "C:/Users/user/Desktop/Поставщики данных" --dry-run
 
 2) Запись в БД
 - Через командную строку переходим в папку, где лежит сканер
 - запускаем команду, пример:
-- python Python_Scanner.py --root "C:/Users/user/Desktop/Поставщики данных" --db-user app --db-pass secret
+
+python Python_Scanner.py --root "C:/Users/user/Desktop/Поставщики данных" --db-user app --db-pass secret
 
 Любой параметр можно не указывать, если он совпадает со значением по умолчанию:
 host=localhost, port=5432, dbname=appdb, user=app, pass=secret.
